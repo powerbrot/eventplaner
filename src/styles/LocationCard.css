@@ -1,0 +1,155 @@
+.location-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.location-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.location-name {
+  font-size: 1.3rem;
+  margin: 0;
+  color: #333;
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.rating-badge {
+  background: #ffc107;
+  color: #333;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.card-info {
+  margin-bottom: 1rem;
+}
+
+.card-info p {
+  margin: 0.3rem 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.address {
+  font-weight: 500;
+}
+
+.district {
+  color: #999;
+}
+
+.card-details {
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-item .label {
+  color: #666;
+  font-weight: 500;
+}
+
+.detail-item .value {
+  color: #333;
+  font-weight: bold;
+}
+
+.card-size {
+  margin-bottom: 1rem;
+}
+
+.size-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.size-klein {
+  background: #c8e6c9;
+  color: #2e7d32;
+}
+
+.size-mittel {
+  background: #fff9c4;
+  color: #f57f17;
+}
+
+.size-groß {
+  background: #ffccbc;
+  color: #d84315;
+}
+
+.card-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.amenity-tag {
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.card-reviews {
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  text-align: center;
+}
+
+.reviews-count {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .location-card {
+    padding: 1rem;
+  }
+
+  .location-name {
+    font-size: 1.1rem;
+  }
+
+  .card-details {
+    padding: 0.8rem;
+  }
+}
