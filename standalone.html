@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 Event-Planer Berlin - Standalone Version</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        #root {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .app-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .app-container {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .sidebar {
+            flex: 0 0 300px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .filter-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 1rem;
+        }
+
+        .filter-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            color: #333;
+        }
+
+        .reset-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        .filter-group {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .filter-group:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .filter-group h3 {
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background: white;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+        }
+
+        .slider-value {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            user-select: none;
+        }
+
+        .results-header {
+            margin-bottom: 2rem;
+        }
+
+        .results-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .results-info {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .location-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .location-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .location-name {
+            font-size: 1.3rem;
+            margin: 0;
+            color: #333;
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+
+        .rating-badge {
+            background: #ffc107;
+            color: #333;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: bold;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .card-info {
+            margin-bottom: 1rem;
+        }
+
+        .card-info p {
+            margin: 0.3rem 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .address {
+            font-weight: 500;
+        }
+
+        .card-details {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-item .label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-item .value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .size-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .size-klein {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .size-mittel {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .size-groß {
+            background: #ffccbc;
+            color: #d84315;
+        }
+
+        .card-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .amenity-tag {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: #f0f0f0;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .close-button:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .detail-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .detail-header h1 {
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-section p {
+            margin: 0.5rem 0;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .amenity-item {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .locations-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 1.5rem;
+            }
+
+            .app-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .app-container {
+                padding: 1rem;
+            }
+
+            .locations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Mock Locations Data
+        const mockLocations = [
+            {
+                id: '1',
+                name: 'Spreebogen Lofts',
+                address: 'Mitte, Berlin',
+                district: 'Mitte',
+                lat: 52.5200,
+                lng: 13.4050,
+                capacity: 500,
+                pricePerHour: 150,
+                rating: 4.8,
+                reviews: 245,
+                amenities: ['Ton-/Lichttechnik', 'WLAN', 'Parkplätze', 'Bar', 'Catering'],
+                size: 'groß',
+                distance: 2.5,
+            },
+            {
+                id: '2',
+                name: 'Kreuzberg Event Space',
+                address: 'Reichenberger Str. 165',
+                district: 'Kreuzberg',
+                lat: 52.4988,
+                lng: 13.4143,
+                capacity: 200,
+                pricePerHour: 80,
+                rating: 4.6,
+                reviews: 189,
+                amenities: ['WLAN', 'Bar', 'Dekoration'],
+                size: 'mittel',
+                distance: 3.2,
+            },
+            {
+                id: '3',
+                name: 'Friedrichshain Warehouse',
+                address: 'Ostkreuz, Friedrichshain',
+                district: 'Friedrichshain',
+                lat: 52.5050,
+                lng: 13.4516,
+                capacity: 800,
+                pricePerHour: 200,
+                rating: 4.7,
+                reviews: 312,
+                amenities: ['Ton-/Lichttechnik', 'Parkplätze', 'Bar', 'Sicherheit', 'Catering'],
+                size: 'groß',
+                distance: 4.1,
+            },
+            {
+                id: '4',
+                name: 'Charlottenburg Palace Room',
+                address: 'Spandauer Damm 20-24',
+                district: 'Charlottenburg',
+                lat: 52.5198,
+                lng: 13.2954,
+                capacity: 150,
+                pricePerHour: 120,
+                rating: 4.9,
+                reviews: 178,
+                amenities: ['Ton-/Lichttechnik', 'WLAN', 'Dekoration', 'Catering'],
+                size: 'mittel',
+                distance: 5.3,
+            },
+            {
+                id: '5',
+                name: 'Neukölln Urban Space',
+                address: 'Leinestr. 1',
+                district: 'Neukölln',
+                lat: 52.4765,
+                lng: 13.4251,
+                capacity: 300,
+                pricePerHour: 60,
+                rating: 4.4,
+                reviews: 126,
+                amenities: ['WLAN', 'Bar'],
+                size: 'mittel',
+                distance: 4.8,
+            },
+            {
+                id: '6',
+                name: 'Tiergarten Boutique Hall',
+                address: 'Straße des 17. Juni',
+                district: 'Tiergarten',
+                lat: 52.5165,
+                lng: 13.3499,
+                capacity: 100,
+                pricePerHour: 90,
+                rating: 4.5,
+                reviews: 98,
+                amenities: ['Ton-/Lichttechnik', 'Catering', 'Parkplätze'],
+                size: 'klein',
+                distance: 2.1,
+            },
+            {
+                id: '7',
+                name: 'Prenzlauer Berg Studio',
+                address: 'Stargarder Str. 70',
+                district: 'Prenzlauer Berg',
+                lat: 52.5400,
+                lng: 13.4130,
+                capacity: 250,
+                pricePerHour: 95,
+                rating: 4.7,
+                reviews: 167,
+                amenities: ['WLAN', 'Bar', 'Dekoration', 'Sicherheit'],
+                size: 'mittel',
+                distance: 3.7,
+            },
+            {
+                id: '8',
+                name: 'Spandau Industrial Hall',
+                address: 'Zitadellenweg 16',
+                district: 'Spandau',
+                lat: 52.5368,
+                lng: 13.1995,
+                capacity: 600,
+                pricePerHour: 140,
+                rating: 4.3,
+                reviews: 145,
+                amenities: ['Ton-/Lichttechnik', 'Parkplätze', 'Bar', 'Sicherheit'],
+                size: 'groß',
+                distance: 8.2,
+            },
+            {
+                id: '9',
+                name: 'Schöneberg Elegant Room',
+                address: 'Martin-Luther-Str. 103',
+                district: 'Schöneberg',
+                lat: 52.4850,
+                lng: 13.3450,
+                capacity: 120,
+                pricePerHour: 85,
+                rating: 4.6,
+                reviews: 112,
+                amenities: ['Ton-/Lichttechnik', 'WLAN', 'Catering'],
+                size: 'klein',
+                distance: 6.1,
+            },
+            {
+                id: '10',
+                name: 'Lichtenberg Modern Space',
+                address: 'Friedensstr. 43',
+                district: 'Lichtenberg',
+                lat: 52.5150,
+                lng: 13.4850,
+                capacity: 180,
+                pricePerHour: 70,
+                rating: 4.2,
+                reviews: 87,
+                amenities: ['WLAN', 'Bar', 'Parkplätze'],
+                size: 'mittel',
+                distance: 5.9,
+            },
+        ];
+
+        // Filter & Sort Logic
+        function filterLocations(locations, filters) {
+            return locations.filter((location) => {
+                if (filters.priceMax && location.pricePerHour > filters.priceMax) return false;
+                if (filters.capacityMin && location.capacity < filters.capacityMin) return false;
+                if (filters.capacityMax && location.capacity > filters.capacityMax) return false;
+                if (filters.size && filters.size.length > 0 && !filters.size.includes(location.size)) return false;
+                if (filters.districts && filters.districts.length > 0 && !filters.districts.includes(location.district)) return false;
+                if (filters.amenities && filters.amenities.length > 0) {
+                    const hasAll = filters.amenities.every(a => location.amenities.includes(a));
+                    if (!hasAll) return false;
+                }
+                if (filters.ratingMin && location.rating < filters.ratingMin) return false;
+                return true;
+            });
+        }
+
+        function sortLocations(locations, sortBy) {
+            const sorted = [...locations];
+            switch (sortBy) {
+                case 'distance': return sorted.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+                case 'rating': return sorted.sort((a, b) => b.rating - a.rating);
+                case 'price': return sorted.sort((a, b) => a.pricePerHour - b.pricePerHour);
+                case 'capacity': return sorted.sort((a, b) => b.capacity - a.capacity);
+                case 'popularity': return sorted.sort((a, b) => b.reviews - a.reviews);
+                default: return sorted;
+            }
+        }
+
+        // Components
+        function LocationCard({ location, onClick }) {
+            return (
+                <div className="location-card" onClick={() => onClick(location)}>
+                    <div className="card-header">
+                        <h3 className="location-name">{location.name}</h3>
+                        <span className="rating-badge">⭐ {location.rating}</span>
+                    </div>
+                    <div className="card-info">
+                        <p className="address">📍 {location.address}</p>
+                        <p>Bezirk: {location.district}</p>
+                    </div>
+                    <div className="card-details">
+                        <div className="detail-item">
+                            <span className="label">Kapazität:</span>
+                            <span className="value">{location.capacity} Personen</span>
+                        </div>
+                        <div className="detail-item">
+                            <span className="label">Preis/Stunde:</span>
+                            <span className="value">€{location.pricePerHour}</span>
+                        </div>
+                        {location.distance && (
+                            <div className="detail-item">
+                                <span className="label">Entfernung:</span>
+                                <span className="value">{location.distance} km</span>
+                            </div>
+                        )}
+                    </div>
+                    <span className={`size-badge size-${location.size}`}>{location.size.toUpperCase()}</span>
+                    <div className="card-amenities">
+                        {location.amenities.slice(0, 3).map((a, i) => (
+                            <span key={i} className="amenity-tag">{a}</span>
+                        ))}
+                        {location.amenities.length > 3 && <span className="amenity-tag">+{location.amenities.length - 3}</span>}
+                    </div>
+                </div>
+            );
+        }
+
+        function LocationDetail({ location, onClose }) {
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <button className="close-button" onClick={onClose}>✕</button>
+                        <div className="detail-header">
+                            <h1>{location.name}</h1>
+                            <div className="header-info">
+                                <span className="rating-badge">⭐ {location.rating} ({location.reviews} Bewertungen)</span>
+                                <span className={`size-badge size-${location.size}`}>{location.size.toUpperCase()}</span>
+                            </div>
+                        </div>
+
+                        <div className="detail-section">
+                            <h2>📍 Standort</h2>
+                            <p>{location.address}</p>
+                            <p>Bezirk: <strong>{location.district}</strong></p>
+                            {location.distance && <p>Entfernung: <strong>{location.distance} km</strong></p>}
+                        </div>
+
+                        <div className="detail-section">
+                            <h2>👥 Kapazität</h2>
+                            <p><strong>Maximale Personenzahl:</strong> {location.capacity} Personen</p>
+                        </div>
+
+                        <div className="detail-section">
+                            <h2>💰 Preise</h2>
+                            <p><strong>Preis pro Stunde:</strong> €{location.pricePerHour}</p>
+                            <p>Geschätzter Tagespreis (8h): €{location.pricePerHour * 8}</p>
+                        </div>
+
+                        <div className="detail-section">
+                            <h2>🎯 Ausstattung</h2>
+                            <div className="amenities-grid">
+                                {location.amenities.map((a, i) => (
+                                    <div key={i} className="amenity-item">✓ {a}</div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="detail-actions">
+                            <button className="btn btn-primary">📧 Anfrage senden</button>
+                            <button className="btn btn-secondary">📍 Auf Karte anzeigen</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function FilterPanel({ filters, setFilters, sortBy, setSortBy, districts, amenities }) {
+            const resetFilters = () => {
+                setFilters({});
+                setSortBy('distance');
+            };
+
+            return (
+                <div className="filter-panel">
+                    <div className="filter-header">
+                        <h2>🔍 Filter & Sortierung</h2>
+                        <button className="reset-btn" onClick={resetFilters}>Zurücksetzen</button>
+                    </div>
+
+                    <div className="filter-group">
+                        <h3>Sortieren nach</h3>
+                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
+                            <option value="distance">📍 Entfernung</option>
+                            <option value="rating">⭐ Bewertung</option>
+                            <option value="price">💰 Preis</option>
+                            <option value="capacity">👥 Kapazität</option>
+                            <option value="popularity">🔥 Beliebtheit</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <h3>Maximal-Preis</h3>
+                        <input type="range" min="50" max="250" step="10" value={filters.priceMax || 250} onChange={(e) => setFilters({...filters, priceMax: Number(e.target.value)})} className="slider" />
+                        <div className="slider-value">€{filters.priceMax || 250}/Stunde</div>
+                    </div>
+
+                    <div className="filter-group">
+                        <h3>Kapazität (Min)</h3>
+                        <input type="range" min="0" max="1000" step="50" value={filters.capacityMin || 0} onChange={(e) => setFilters({...filters, capacityMin: Number(e.target.value)})} className="slider" />
+                        <div className="slider-value">{filters.capacityMin || 0} Personen</div>
+                    </div>
+
+                    <div className="filter-group">
+                        <h3>Raumgröße</h3>
+                        <div className="checkbox-group">
+                            {['klein', 'mittel', 'groß'].map(size => (
+                                <label key={size} className="checkbox-label">
+                                    <input type="checkbox" checked={(filters.size || []).includes(size)} onChange={() => {
+                                        const sizes = filters.size || [];
+                                        const newSizes = sizes.includes(size) ? sizes.filter(s => s !== size) : [...sizes, size];
+                                        setFilters({...filters, size: newSizes});
+                                    }} />
+                                    {size.charAt(0).toUpperCase() + size.slice(1)}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="filter-group">
+                        <h3>Bezirke</h3>
+                        <div className="checkbox-group">
+                            {districts.map(district => (
+                                <label key={district} className="checkbox-label">
+                                    <input type="checkbox" checked={(filters.districts || []).includes(district)} onChange={() => {
+                                        const dists = filters.districts || [];
+                                        const newDists = dists.includes(district) ? dists.filter(d => d !== district) : [...dists, district];
+                                        setFilters({...filters, districts: newDists});
+                                    }} />
+                                    {district}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="filter-group">
+                        <h3>Ausstattung</h3>
+                        <div className="checkbox-group">
+                            {amenities.map(amenity => (
+                                <label key={amenity} className="checkbox-label">
+                                    <input type="checkbox" checked={(filters.amenities || []).includes(amenity)} onChange={() => {
+                                        const amen = filters.amenities || [];
+                                        const newAmen = amen.includes(amenity) ? amen.filter(a => a !== amenity) : [...amen, amenity];
+                                        setFilters({...filters, amenities: newAmen});
+                                    }} />
+                                    {amenity}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="filter-group">
+                        <h3>Mindest-Bewertung</h3>
+                        <input type="range" min="0" max="5" step="0.1" value={filters.ratingMin || 0} onChange={(e) => setFilters({...filters, ratingMin: Number(e.target.value)})} className="slider" />
+                        <div className="slider-value">⭐ {(filters.ratingMin || 0).toFixed(1)}</div>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [locations] = useState(mockLocations);
+            const [filteredLocations, setFilteredLocations] = useState(mockLocations);
+            const [filters, setFilters] = useState({});
+            const [sortBy, setSortBy] = useState('distance');
+            const [selectedLocation, setSelectedLocation] = useState(null);
+
+            useEffect(() => {
+                let result = filterLocations(locations, filters);
+                result = sortLocations(result, sortBy);
+                setFilteredLocations(result);
+            }, [filters, sortBy]);
+
+            const districts = Array.from(new Set(locations.map(l => l.district))).sort();
+            const allAmenities = Array.from(new Set(locations.flatMap(l => l.amenities))).sort();
+
+            return (
+                <div className="app">
+                    <header className="app-header">
+                        <div className="header-content">
+                            <h1>🎉 Event-Planer Berlin</h1>
+                            <p>Finde die perfekte Location für dein Event in Berlin</p>
+                        </div>
+                    </header>
+
+                    <div className="app-container">
+                        <aside className="sidebar">
+                            <FilterPanel filters={filters} setFilters={setFilters} sortBy={sortBy} setSortBy={setSortBy} districts={districts} amenities={allAmenities} />
+                        </aside>
+
+                        <main className="main-content">
+                            <div className="results-header">
+                                <h2>{filteredLocations.length} Location{filteredLocations.length !== 1 ? 's' : ''} gefunden</h2>
+                                <p className="results-info">Sortiert nach: <strong>{sortBy === 'distance' ? 'Entfernung' : sortBy === 'rating' ? 'Bewertung' : sortBy === 'price' ? 'Preis' : sortBy === 'capacity' ? 'Kapazität' : 'Beliebtheit'}</strong></p>
+                            </div>
+
+                            {filteredLocations.length === 0 ? (
+                                <div className="no-results">
+                                    <p>😞 Keine Locations gefunden, die deinen Kriterien entsprechen.</p>
+                                    <p>Versuche, deine Filter anzupassen.</p>
+                                </div>
+                            ) : (
+                                <div className="locations-grid">
+                                    {filteredLocations.map(location => (
+                                        <LocationCard key={location.id} location={location} onClick={setSelectedLocation} />
+                                    ))}
+                                </div>
+                            )}
+                        </main>
+                    </div>
+
+                    {selectedLocation && <LocationDetail location={selectedLocation} onClose={() => setSelectedLocation(null)} />}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
